@@ -1,6 +1,6 @@
 FROM node:16.17.0-alpine as builder
 
-WORKDIR /www/netflix-clone
+WORKDIR /www/my-demo-app
 
 COPY ./package.json .
 COPY ./yarn.lock .
@@ -20,7 +20,7 @@ WORKDIR /usr/share/nginx/html
 
 RUN rm -rf ./*
 
-COPY --from=builder /app/dist .
+COPY --from=builder /www/my-demo-app/dist .
 
 EXPOSE 80
 
