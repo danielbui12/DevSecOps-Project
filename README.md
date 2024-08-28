@@ -1,4 +1,9 @@
-# Deploy Netflix Clone on Cloud using Jenkins - DevSecOps Project!
+# Deploy A Website on Cloud using Jenkins - DevSecOps Project!
+
+>
+> Completed 5/6 steps
+> See my work at [result](result)
+> 
 
 ### **Phase 1: Initial Setup and Deployment**
 
@@ -33,12 +38,12 @@
 - Build and run your application using Docker containers:
     
     ```bash
-    docker build -t netflix .
-    docker run -d --name netflix -p 8081:80 netflix:latest
-    
-    #to delete
-    docker stop <containerid>
-    docker rmi -f netflix
+    docker build -t my-demo-app .
+    docker run -d --name my-demo-container -p 8081:80 my-demo-app:latest
+
+    # to delete
+    docker stop my-demo-container
+    docker rmi -f my-demo-app
     ```
 
 It will show an error cause you need API key
@@ -55,10 +60,10 @@ It will show an error cause you need API key
 
 Now recreate the Docker image with your api key:
 ```
-docker build --build-arg TMDB_V3_API_KEY=<your-api-key> -t netflix .
+docker build --name my-demo-container --build-arg TMDB_V3_API_KEY=<your-api-key> -t my-demo-app .
 ```
 
-**Phase 2: Security**
+### **Phase 2: Security**
 
 1. **Install SonarQube and Trivy:**
     - Install SonarQube and Trivy on the EC2 instance to scan for vulnerabilities.
@@ -92,11 +97,10 @@ docker build --build-arg TMDB_V3_API_KEY=<your-api-key> -t netflix .
     - Integrate SonarQube with your CI/CD pipeline.
     - Configure SonarQube to analyze code for quality and security issues.
 
-**Phase 3: CI/CD Setup**
+### **Phase 3: CI/CD Setup**
 
 1. **Install Jenkins for Automation:**
     - Install Jenkins on the EC2 instance to automate deployment:
-    Install Java
     
     ```bash
     sudo apt update
@@ -124,17 +128,17 @@ docker build --build-arg TMDB_V3_API_KEY=<your-api-key> -t netflix .
         
 2. **Install Necessary Plugins in Jenkins:**
 
-Goto Manage Jenkins →Plugins → Available Plugins →
+Goto Manage Jenkins → Plugins → Available Plugins →
 
 Install below plugins
 
-1 Eclipse Temurin Installer (Install without restart)
+1. Eclipse Temurin Installer (Install without restart)
 
-2 SonarQube Scanner (Install without restart)
+2. SonarQube Scanner (Install without restart)
 
-3 NodeJs Plugin (Install Without restart)
+3. NodeJs Plugin (Install Without restart)
 
-4 Email Extension Plugin
+4. Email Extension Plugin
 
 ### **Configure Java and Nodejs in Global Tool Configuration**
 
@@ -186,8 +190,8 @@ pipeline {
         stage("Sonarqube Analysis") {
             steps {
                 withSonarQubeEnv('sonar-server') {
-                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Netflix \
-                    -Dsonar.projectKey=Netflix'''
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=MyDemoApp \
+                    -Dsonar.projectKey=MyDemoApp'''
                 }
             }
         }
@@ -252,84 +256,110 @@ Certainly, here are the instructions without step numbers:
 Now, you have installed the Dependency-Check plugin, configured the tool, and added Docker-related plugins along with your DockerHub credentials in Jenkins. You can now proceed with configuring your Jenkins pipeline to include these tools and credentials in your CI/CD process.
 
 ```groovy
-
-pipeline{
-    agent any
-    tools{
-        jdk 'jdk17'
-        nodejs 'node16'
+pipeline {
+  agent any
+  tools {
+    jdk 'jdk17'
+    nodejs 'node16'
+  }
+  environment {
+    SCANNER_HOME = tool 'sonar-scanner'
+  }
+  stages {
+    stage('clean workspace') {
+      steps {
+        cleanWs()
+      }
     }
-    environment {
-        SCANNER_HOME=tool 'sonar-scanner'
+    stage('Checkout from Git') {
+      steps {
+        git branch: 'main', url: 'https://github.com/danielbui12/DevSecOps-Project.git'
+      }
     }
-    stages {
-        stage('clean workspace'){
-            steps{
-                cleanWs()
-            }
+    stage("Sonarqube Analysis ") {
+      steps {
+        withSonarQubeEnv('sonar-server') {
+          sh ''
+          ' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=MyDemoApp \
+                    -Dsonar.projectKey=MyDemoApp '
+          ''
         }
-        stage('Checkout from Git'){
-            steps{
-                git branch: 'main', url: 'https://github.com/danielbui12/DevSecOps-Project.git'
-            }
-        }
-        stage("Sonarqube Analysis "){
-            steps{
-                withSonarQubeEnv('sonar-server') {
-                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Netflix \
-                    -Dsonar.projectKey=Netflix '''
-                }
-            }
-        }
-        stage("quality gate"){
-           steps {
-                script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token' 
-                }
-            } 
-        }
-        stage('Install Dependencies') {
-            steps {
-                sh "npm install"
-            }
-        }
-        stage('OWASP FS SCAN') {
-            steps {
-                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-            }
-        }
-        stage('TRIVY FS SCAN') {
-            steps {
-                sh "trivy fs . > trivyfs.txt"
-            }
-        }
-        stage("Docker Build & Push"){
-            steps{
-                script{
-                   withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
-                       sh "docker build --build-arg TMDB_V3_API_KEY=<yourapikey> -t netflix ."
-                       sh "docker tag netflix nasi101/netflix:latest "
-                       sh "docker push nasi101/netflix:latest "
-                    }
-                }
-            }
-        }
-        stage("TRIVY"){
-            steps{
-                sh "trivy image nasi101/netflix:latest > trivyimage.txt" 
-            }
-        }
-        stage('Deploy to container'){
-            steps{
-                sh 'docker run -d --name netflix -p 8081:80 nasi101/netflix:latest'
-            }
-        }
+      }
     }
+    stage("quality gate") {
+      steps {
+        script {
+          waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token'
+        }
+      }
+    }
+    stage('Install Dependencies') {
+      steps {
+        sh "npm install"
+      }
+    }
+    stage('OWASP FS SCAN') {
+      steps {
+        dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
+        dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+      }
+    }
+    stage('TRIVY FS SCAN') {
+      steps {
+        sh "trivy fs . > trivyfs.txt"
+      }
+    }
+    stage("Docker Build & Push") {
+      steps {
+        script {
+          withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
+            sh "docker build --build-arg TMDB_V3_API_KEY=<API_KEY> -t my-demo-app ."
+            sh "docker tag my-demo-app danielbui12demo/my-demo-app:latest "
+            sh "docker push danielbui12demo/my-demo-app:latest "
+          }
+        }
+      }
+    }
+    stage("TRIVY") {
+      steps {
+        sh "trivy image danielbui12demo/my-demo-app:latest > trivyimage.txt"
+      }
+    }
+    stage('Deploy to container') {
+      steps {
+        sh 'docker image rm danielbui12demo/my-demo-app'
+        sh 'docker stop my-demo-container'
+        sh 'docker rm my-demo-container'
+        sh 'docker run --name my-demo-container -d -p 8081:80 danielbui12demo/my-demo-app:latest'
+      }
+    }
+    stage('Deploy to kubernets') {
+      steps {
+        script {
+          dir('Kubernetes') {
+            withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
+              sh 'kubectl apply -f deployment.yml'
+              sh 'kubectl apply -f service.yml'
+            }
+          }
+        }
+      }
+    }
+  }
+  post {
+    always {
+      emailext attachLog: true,
+        subject: "'${currentBuild.result}'",
+        body: "Project: ${env.JOB_NAME}<br/>" +
+        "Build Number: ${env.BUILD_NUMBER}<br/>" +
+        "URL: ${env.BUILD_URL}<br/>",
+        to: 'huytung139@gmail.com',
+        attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
+    }
+  }
 }
 
-
-If you get docker login failed errorr
+If you get docker login failed error
 
 sudo su
 sudo usermod -aG docker jenkins
@@ -338,7 +368,7 @@ sudo systemctl restart jenkins
 
 ```
 
-**Phase 4: Monitoring**
+### **Phase 4: Monitoring**
 
 1. **Install Prometheus and Grafana:**
 
@@ -537,7 +567,7 @@ sudo systemctl restart jenkins
    `http://<your-prometheus-ip>:9090/targets`
 
 
-####Grafana
+#### Grafana
 
 **Install Grafana on Ubuntu 22.04 and Set it up to Work with Prometheus**
 
@@ -728,7 +758,7 @@ To deploy an application with ArgoCD, you can follow these steps, which I'll out
 4. **Access your Application**
    - To Access the app make sure port 30007 is open in your security group and then open a new tab paste your NodeIP:30007, your app should be running.
 
-**Phase 7: Cleanup**
+## **Phase 7: Cleanup**
 
 1. **Cleanup AWS EC2 Instances:**
     - Terminate AWS EC2 instances that are no longer needed.
