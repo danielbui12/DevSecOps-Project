@@ -142,22 +142,22 @@ Install below plugins
 
 ### **Configure Java and Nodejs in Global Tool Configuration**
 
-Goto Manage Jenkins → Tools → Install JDK(17) and NodeJs(16)→ Click on Apply and Save
+Goto Manage Jenkins → Tools → Install JDK(17.0.8.1+1) from `adoptium.net` and NodeJs(16)→ Click on Apply and Save
 
 
 ### SonarQube
 
 Create the token
 
-Goto Jenkins Dashboard → Manage Jenkins → Credentials → Add Secret Text. It should look like this
+Goto Jenkins Dashboard → Manage Jenkins → Credentials → Add Secret Text.
 
 After adding sonar token
 
 Click on Apply and Save
 
-**The Configure System option** is used in Jenkins to configure different server
+Goto **System** to configure the Sonarqube server
 
-**Global Tool Configuration** is used to configure different tools that we install using Plugins
+Goto **Tool** to install Sonarqube scanner
 
 We will install a sonar scanner in the tools.
 
