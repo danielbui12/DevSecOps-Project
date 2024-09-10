@@ -5,7 +5,7 @@
 > See my work at [result](result)
 > 
 
-### **Phase 1: Initial Setup and Deployment**
+## **Phase 1: Initial Setup and Deployment**
 
 **Step 1: Launch EC2 (Ubuntu 22.04):**
 
@@ -63,7 +63,7 @@ Now recreate the Docker image with your api key:
 docker build --name my-demo-container --build-arg TMDB_V3_API_KEY=<your-api-key> -t my-demo-app .
 ```
 
-### **Phase 2: Security**
+## **Phase 2: Security**
 
 1. **Install SonarQube and Trivy:**
     - Install SonarQube and Trivy on the EC2 instance to scan for vulnerabilities.
@@ -97,7 +97,7 @@ docker build --name my-demo-container --build-arg TMDB_V3_API_KEY=<your-api-key>
     - Integrate SonarQube with your CI/CD pipeline.
     - Configure SonarQube to analyze code for quality and security issues.
 
-### **Phase 3: CI/CD Setup**
+## **Phase 3: CI/CD Setup**
 
 1. **Install Jenkins for Automation:**
     - Install Jenkins on the EC2 instance to automate deployment:
@@ -371,7 +371,7 @@ sudo systemctl restart jenkins
 
 ```
 
-### **Phase 4: Monitoring**
+## **Phase 4: Monitoring**
 
 1. **Install Prometheus and Grafana:**
 
@@ -685,18 +685,38 @@ That's it! You've successfully installed and set up Grafana to work with Prometh
 **Configure Prometheus Plugin Integration:**
     - Open Jenkins website, goto Plugin, then install `Prometheus metric` with restart
 
-**Phase 5: Notification**
+## **Phase 5: Notification**
 
 1. **Implement Notification Services:**
     - Set up email notifications in Jenkins or other notification mechanisms.
 
-# Phase 6: Kubernetes
+## Phase 6: Kubernetes
 
-## Create Kubernetes Cluster with Nodegroups
+### Create Kubernetes Cluster with Nodegroups
 
 In this phase, you'll set up a Kubernetes cluster with node groups. This will provide a scalable environment to deploy and manage your applications.
 
-## Monitor Kubernetes with Prometheus
+Attach to EKS
+```bash
+aws eks update-kubeconfig --name MyDemoCluster --region ap-southeast-1
+```
+
+### Install Argo CD
+Follow this [guide](https://archive.eksworkshop.com/intermediate/290_argocd/install/)
+```bash
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.4.7/manifests/install.yaml
+```
+
+
+### Install Helm
+```bash
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+```
+
+### Monitor Kubernetes with Prometheus
 
 Prometheus is a powerful monitoring and alerting toolkit, and you'll use it to monitor your Kubernetes cluster. Additionally, you'll install the node exporter using Helm to collect metrics from your cluster nodes.
 
@@ -742,22 +762,18 @@ To deploy an application with ArgoCD, you can follow these steps, which I'll out
 
 ### Deploy Application with ArgoCD
 
-1. **Install ArgoCD:**
+1. **Set Your GitHub Repository as a Source:**
 
-   You can install ArgoCD on your Kubernetes cluster by following the instructions provided in the [EKS Workshop](https://archive.eksworkshop.com/intermediate/290_argocd/install/) documentation.
+You need to set up your GitHub repository as a source for your application deployment. This typically involves configuring the connection to your repository and defining the source for your ArgoCD application. The specific steps will depend on your setup and requirements.
 
-2. **Set Your GitHub Repository as a Source:**
-
-   After installing ArgoCD, you need to set up your GitHub repository as a source for your application deployment. This typically involves configuring the connection to your repository and defining the source for your ArgoCD application. The specific steps will depend on your setup and requirements.
-
-3. **Create an ArgoCD Application:**
+2. **Create an ArgoCD Application:**
    - `name`: Set the name for your application.
    - `destination`: Define the destination where your application should be deployed.
    - `project`: Specify the project the application belongs to.
    - `source`: Set the source of your application, including the GitHub repository URL, revision, and the path to the application within the repository.
    - `syncPolicy`: Configure the sync policy, including automatic syncing, pruning, and self-healing.
 
-4. **Access your Application**
+3. **Access your Application**
    - To Access the app make sure port 30007 is open in your security group and then open a new tab paste your NodeIP:30007, your app should be running.
 
 ## **Phase 7: Cleanup**
