@@ -286,7 +286,7 @@ pipeline {
         }
       }
     }
-    stage("quality gate") {
+    stage("Quality Gate") {
       steps {
         script {
           waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token'
@@ -327,7 +327,7 @@ pipeline {
     }
     stage('Deploy to container') {
       steps {
-        sh 'docker image rm danielbui12demo/my-demo-app'
+        sh 'docker pull danielbui12demo/my-demo-app:latest'
         sh 'docker stop my-demo-container'
         sh 'docker rm my-demo-container'
         sh 'docker run --name my-demo-container -d -p 8081:80 danielbui12demo/my-demo-app:latest'
