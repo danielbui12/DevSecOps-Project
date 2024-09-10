@@ -120,6 +120,9 @@ docker build --name my-demo-container --build-arg TMDB_V3_API_KEY=<your-api-key>
     sudo apt-get install jenkins
     sudo systemctl start jenkins
     sudo systemctl enable jenkins
+
+    sudo usermod -aG docker jenkins # enable jenkins to use docker
+    sudo systemctl restart jenkins
     ```
     
     - Access Jenkins in a web browser using the public IP of your EC2 instance.
@@ -679,9 +682,8 @@ Grafana is a powerful tool for creating visualizations and dashboards, and you c
 
 That's it! You've successfully installed and set up Grafana to work with Prometheus for monitoring and visualization.
 
-2. **Configure Prometheus Plugin Integration:**
-    - Integrate Jenkins with Prometheus to monitor the CI/CD pipeline.
-
+**Configure Prometheus Plugin Integration:**
+    - Open Jenkins website, goto Plugin, then install `Prometheus metric` with restart
 
 **Phase 5: Notification**
 
@@ -726,7 +728,7 @@ Update your Prometheus configuration (prometheus.yml) to add a new job for scrap
 
 
 ```
-  - job_name: 'Netflix'
+  - job_name: 'MyDemoApp'
     metrics_path: '/metrics'
     static_configs:
       - targets: ['node1Ip:9100']
