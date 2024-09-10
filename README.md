@@ -1,8 +1,8 @@
 # Deploy A Website on Cloud using Jenkins - DevSecOps Project!
 
 >
-> Completed 5/6 steps
-> See my work at [result](result)
+> 🔥 Yay, I completed this labs
+> See my work at [this folder](result)
 > 
 
 ## **Phase 1: Initial Setup and Deployment**
