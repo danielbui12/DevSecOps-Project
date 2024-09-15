@@ -2,8 +2,10 @@
 
 >
 > 🔥 Yay, I completed this labs
-> See my work at [this folder](result)
+> See my work at [this](result/README.md)
 > 
+
+
 
 ## **Phase 1: Initial Setup and Deployment**
 
