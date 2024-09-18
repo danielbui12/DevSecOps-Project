@@ -1,3 +1,13 @@
+## Extra Work
+
+![alertmanager](extra_alert_rule_state.png)
+
+![alertmanager_fired_alarm](extra_fired_alarm.png)
+
+![alertmanager_alarm_msg](extra_alarm_msg.png)
+
+---
+
 ## Work Result
 
 ![Sonarqube](2_sonarqube_scan.png)
@@ -15,7 +25,3 @@
 ![argocd](6_argo_cd.png)
 
 ![website](website.png)
-
-## Extra part
-
-![alertmanager](extra_alert_rule_state.png)
